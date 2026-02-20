@@ -33,7 +33,10 @@
     "package": "npx rimraf ./dist && npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "package:watch": "npm run package -- --watch",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
-    "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
+    "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
+    "gen": "npx tsx scripts/gen-workflows.ts",
+    "gen:check": "npx tsx scripts/gen-workflows.ts --check",
+    "cleanup": "node scripts/cleanup-template.mjs"
   },
   "license": "MIT",
   "dependencies": {
@@ -61,7 +64,9 @@
     "rollup": "^4.57.1",
     "ts-jest": "^29.4.6",
     "ts-jest-resolver": "^2.0.1",
-    "typescript": "^5.9.3"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "yaml": "^2.8.2"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "*"
