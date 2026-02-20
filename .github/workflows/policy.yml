@@ -1,0 +1,40 @@
+name: Policy
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  require-issue-link:
+    name: Require issue reference
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR references an issue
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+
+          text="${PR_TITLE}"$'\n'"${PR_BODY:-}"
+
+          # Accept any of these patterns:
+          # - "Closes #123" / "Fixes #123" / "Resolves #123"
+          # - bare "#123" anywhere
+          if echo "$text" | grep -Eiq '((close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)[[:space:]]*#[0-9]+)|(^|[^A-Za-z0-9_])#[0-9]+'; then
+            echo "✅ Issue reference found."
+            exit 0
+          fi
+
+          echo "❌ Policy failure: PR must reference an issue."
+          echo ""
+          echo "Add one of these to the PR title or description:"
+          echo "  - Closes #123"
+          echo "  - Fixes #123"
+          echo "  - Resolves #123"
+          echo "  - or include a bare #123"
+          exit 1
