@@ -1,0 +1,44 @@
+name: kernel-ci
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [stable]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install Rust (nightly example; change if you want stable)
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rust-src
+
+      # Cache cargo registry + target/ for huge speedups
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      # Install your kernel build deps (nasm, qemu, grub, etc.)
+      - name: Install build + boot deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            nasm \
+            xorriso \
+            mtools \
+            qemu-system-x86 \
+            grub-common
+
+      # Build your kernel / iso (replace with your real make target)
+      - name: Build
+        run: |
+          make all
